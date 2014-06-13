@@ -1,6 +1,5 @@
 /bin/
 /local/
-/DungeonMaster/settings.py
 DungeonMaster.wsgi
 *.pyc
 /lib/
