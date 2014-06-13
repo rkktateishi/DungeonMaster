@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+#
+# The Config script is intended to be an easy-install to start working on this project
+#
+# Config script installs the following
+# - Dependencies
+# - OS dependencies(Python, pip, MySQL)
+# - virtualenv/requirements.txt
+
+
+# Exit immediately if a comman exits with a nonzero exit status.
+set -e
+
+info() { printf " [ \033[00;34m..\033[0m ] $1\n"; }
+success () { printf "\r\033[2K [ \033[00;32mOK\033[0m ] $1\n"; }
+fail() { printf "\r\033[2K [\033[0;FAIL\033[0m ] $1\n"; echo ''; exit; }
+
+#config!
+echo "Configuring project..."
+
+if [ "$1" != "test" ]; then
+    echo
+    echo "Sudo is required for some operations,"
+    echo "but don't use sudo to run thsi script"
+    echo "as pip will need to use the venv"
+    echo
+
+    sudo echo "Acquired root"
+    echo
+
+    ## Dependancy Check
+    info "Ensuring that the OS dependencies are present... (sudo is required)"
+    
+    sudo apt-get install -qq -y \
+        python-virtualenv python-pip python-dev \
+        mysql-server
+
+    sudo pip install -qq pip --upgrade
+    sudo pip install -qq setuptools --no-use-wheel --upgrade
+    sudo pip install -qU virtualenv pip
+
+    success "Done Ensuring that the OS dependcies are present"
+fi
+
+## Creating virtualenv
+info "Ensuring that the virtualenv exists..."
+if [ ! -d ./bin ]; then
+    # no VirtualEnv
+    virtualenv --no-site-packages .
+    bin/pip install -qq pip --upgrade
+fi
+
+success "Done Ensuring the virtualenv exists."
+
+## Install/Update dependencies
+info "Installing/Upgrading Dependencies..."
+pip install -qr requirements.txt --exists-action=w
+
+success "Done Installing/upgrading dependencies."
+
+success "Cofiguration Complete"
+

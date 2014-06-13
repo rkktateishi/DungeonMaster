@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth import User
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 BA_TYPE_CHOICE = (
@@ -44,7 +44,7 @@ ATTACK_TYPE_CHOICE = (
     ('Touch', 'Touch'),
     ('Ranged_Touch', 'Ranged Touch')
 )
-CONDITION_TYPE_CHOCIE = (
+CONDITION_TYPE_CHOICE = (
     ("__lte", "Less than or Equal to Value"),
     ("__gte", "Greater than or Equal to Value"),
     ("__iexact", "Equals Value"),
@@ -71,7 +71,7 @@ class Skill(models.Model):
     description = models.TextField()
     untrained = models.BooleanField(default=False)
     armor_check = models.BooleanField(default=False)
-    modifier = CharField(max_length=10, choice=MODIFIER_CHOICE)
+    modifier = models.CharField(max_length=10, choices=MODIFIER_CHOICE)
 
 
 class AttackModifier(models.Model):
@@ -86,7 +86,7 @@ class AttackModifier(models.Model):
 
 
 class AbilityModifier(models.Model):
-    ability = models.CharField(max_length=3, choice=MODIFIER_CHOICE)
+    ability_name = models.CharField(max_length=3, choices=MODIFIER_CHOICE)
     bonus = models.IntegerField(default=0)
 
     def __unicode__(self):
@@ -108,7 +108,7 @@ class SkillModifier(models.Model):
 
 
 class ACModifier(models.Model):
-    type = models.CharField(max_length=20, choice=AC_TYPE_CHOICE)
+    type = models.CharField(max_length=20, choices=AC_TYPE_CHOICE)
     bonus = models.IntegerField(default=0)
     
     def __unicode__(self):
@@ -118,14 +118,14 @@ class ACModifier(models.Model):
         return
 
 
-class DCBonus(modesl.Model):
-    modifier = models.CharField(max_length=3, choice=ABILITY_TYPE_CHOICE)
+class DCBonus(models.Model):
+    modifier = models.CharField(max_length=3, choices=ABILITY_TYPE_CHOICE)
     level = models.BooleanField(default=False)
-    hit_dice = models.BooleanField(defualt=False)
+    hit_dice = models.BooleanField(default=False)
 
 
 class SpecialAttack(models.Model):
-    attack_type = models.CharField(max_length=20, choice=ATTACK_TYPE_CHOICE)
+    attack_type = models.CharField(max_length=20, choices=ATTACK_TYPE_CHOICE)
     base_dc = models.IntegerField(default=10)
 #    dc_bonus = models.Foreign(DCBonus, null=True)
     damage_roll = models.IntegerField(default=4)
@@ -141,7 +141,7 @@ class SpecialAttack(models.Model):
 class Ability(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    type = models.CharField(max_length=20, choice=ABILITY_TYPE_CHOICE)
+    type = models.CharField(max_length=20, choices=ABILITY_TYPE_CHOICE)
     attack_modifier = models.OneToOneField(AttackModifier, null=True)
     ability_modifier = models.OneToOneField(AbilityModifier, null=True)
     skill_modifier = models.OneToOneField(SkillModifier, null=True)
@@ -152,10 +152,10 @@ class Ability(models.Model):
 class CharacterClass(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    base_attack = models.CharField(choice=BA_TYPE_CHOICE, max_length=15)
-    fort_base = models.CharField(choice=SAVE_TYPE_CHOICE, max_length=15)
-    ref_base = models.CharField(choice=SAVE_TYPE_CHOICE, max_length=15)
-    will_base = models.CharField(choice=SAVE_TYPE_CHOICE, max_length=15)
+    base_attack = models.CharField(choices=BA_TYPE_CHOICE, max_length=15)
+    fort_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
+    ref_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
+    will_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
     class_skills = models.ManyToManyField(Skill)
     hit_dice = models.IntegerField(default=4)
 
@@ -189,5 +189,5 @@ class SkillRanks(models.Model):
     ranks = models.IntegerField(default=0)
     character = models.ForeignKey(Character)
     skill = models.ForeignKey(Skill)
-    modifier = models.IngtegerField(default=0)
+    modifier = models.IntegerField(default=0)
     is_class_skill = models.BooleanField(default=False)
