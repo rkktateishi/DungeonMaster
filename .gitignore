@@ -4,3 +4,5 @@ DungeonMaster.wsgi
 *.pyc
 /lib/
 /include/
+/DungeonMaster/settings/production.py
+
