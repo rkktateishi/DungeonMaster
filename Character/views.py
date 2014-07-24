@@ -1,6 +1,8 @@
 from django.views.generic import CreateView
 
-from .models import Character
+from .models import *
+
 
 class CharacterCreateView(CreateView):
     model=Character
+
