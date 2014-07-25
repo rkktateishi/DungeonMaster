@@ -5,4 +5,5 @@ from .models import *
 
 class CharacterCreateView(CreateView):
     model=Character
-
+    template_name='Character/Character/create_character.html'
+    

@@ -50,6 +50,17 @@ CONDITION_TYPE_CHOICE = (
     ("__iexact", "Equals Value"),
     ("__in", "Is one of Thes: (seperatted by commas)")
 )
+ALIGNMENT_CHOICES = (
+    ("LG", "Lawful Good"),
+    ("TG", "True Good"),
+    ("CG", "Chaotic Good"),
+    ("LN", "Lawful Neutral"),
+    ("TN", "True Neutral"),
+    ("CN", "Chaotic Neutral"),
+    ("LE", "Lawful Evil"),
+    ("TE", "True Evil"),
+    ("CE", "Chaotic Evil")
+)
 
 class Condition(models.Model):
     #item = models.ManyToMany(Item, null=True)
@@ -68,10 +79,13 @@ class Filter(models.Model):
 
 class Skill(models.Model):
     name = models.CharField(max_length=50)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     untrained = models.BooleanField(default=False)
     armor_check = models.BooleanField(default=False)
     modifier = models.CharField(max_length=10, choices=MODIFIER_CHOICE)
+    
+    def __unicode__(self):
+        return self.name
 
 
 class AttackModifier(models.Model):
@@ -101,7 +115,7 @@ class SkillModifier(models.Model):
     bonus = models.IntegerField(default=0)
     
     def __unicode__(self):
-        return self.ability.name
+        return self.skill.name
     
     def apply(self):
         return
@@ -140,7 +154,7 @@ class SpecialAttack(models.Model):
 
 class Ability(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     type = models.CharField(max_length=20, choices=ABILITY_TYPE_CHOICE)
     attack_modifier = models.OneToOneField(AttackModifier, null=True)
     ability_modifier = models.OneToOneField(AbilityModifier, null=True)
@@ -151,31 +165,35 @@ class Ability(models.Model):
 
 class CharacterClass(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     base_attack = models.CharField(choices=BA_TYPE_CHOICE, max_length=15)
     fort_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
     ref_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
     will_base = models.CharField(choices=SAVE_TYPE_CHOICE, max_length=15)
     class_skills = models.ManyToManyField(Skill)
     hit_dice = models.IntegerField(default=4)
+    base_skill_points = models.IntegerField(default=2)
 
+    def __unicode__(self):
+        return self.name
+
+
+class Race(models.Model):
+    name = models.CharField(max_length=100)
+    abilities = models.ForeignKey(Ability)
 
 class Character(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User)
     character_class = models.ForeignKey(CharacterClass)
     level = models.IntegerField(default=1)
-    
-    fort_base = models.IntegerField(default=0)
-    ref_save = models.IntegerField(default=0)
-    will_save = models.IntegerField(default=0)
-
-    base_attack = models.IntegerField(default=0)
+    avatar = models.ImageField(blank=True, upload_to="character/avatars/", null=True)
 
     feats = models.ManyToManyField(Ability)
 
-    max_HP = models.IntegerField()
-    current_HP = models.IntegerField()
+    max_HP = models.IntegerField(default=0)
+    current_HP = models.IntegerField(default=0)
+    current_experience = models.IntegerField(default=0)
 
     strength = models.IntegerField()
     dexterity = models.IntegerField()
@@ -183,6 +201,19 @@ class Character(models.Model):
     wisdom = models.IntegerField()
     intelligence = models.IntegerField()
     charisma = models.IntegerField()
+    
+    personality = models.TextField(blank=True, null=True)
+    history = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    alignment = models.CharField(blank=True,null=True,choices=ALIGNMENT_CHOICES, max_length=50)
+    height = models.CharField(blank=True, null=True, max_length=20)
+    weight = models.CharField(blank=True, null=True, max_length=20)
+    age = models.IntegerField(blank=True, null=True)
+    gender = models.CharField(max_length=10, default="U", choices=(("M","Male"),("F","Female"),("U","Unspecified")))
+    deity = models.CharField(max_length=50, blank=True, null=True)
+    
+    def __unicode__(self):
+        return self.name
 
 
 class SkillRanks(models.Model):
